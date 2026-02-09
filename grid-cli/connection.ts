@@ -60,7 +60,7 @@ export class GridConnection {
         this.port.removeListener("data", onData);
       };
 
-      const sendPacket = () => {
+      const sendPacket = async () => {
         attempt++;
         buffer = Buffer.alloc(0);
         clearTimeout(timeoutId);
@@ -74,6 +74,8 @@ export class GridConnection {
           }
         }, timeout);
 
+        this.port.flush();
+        await new Promise((r) => setTimeout(r, 50));
         this.port.write(Buffer.from([...packet.serial, LF]));
       };
 
@@ -100,7 +102,7 @@ export class GridConnection {
    * Send a packet and wait for ACKNOWLEDGE response.
    */
   async sendAndWaitAck(packet: Packet, options: Partial<SendOptions> = {}): Promise<void> {
-    const { timeout = 1000, retries = 3 } = options;
+    const { timeout = 5000, retries = 3 } = options;
     await this.sendAndWait(packet, (buf) => (hasAcknowledge(buf) ? true : null), { timeout, retries });
   }
 

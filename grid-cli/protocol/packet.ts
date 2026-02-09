@@ -54,29 +54,35 @@ export function buildConfigPacket(instruction: ConfigInstruction, params: Config
  */
 export function parsePacket(data: Buffer): DecodedFrame[] | null {
   const bytes = Array.from(data);
+  const allFrames: DecodedFrame[] = [];
+  let offset = 0;
 
-  const start = bytes.indexOf(PROTOCOL_CONST.SOH);
-  if (start === -1) return null;
+  while (offset < bytes.length) {
+    const start = bytes.indexOf(PROTOCOL_CONST.SOH, offset);
+    if (start === -1) break;
 
-  let end = -1;
-  for (let i = start; i < bytes.length - 2; i++) {
-    if (bytes[i] === PROTOCOL_CONST.EOT) {
-      end = i + FRAME_TERMINATOR_SIZE;
-      break;
+    let end = -1;
+    for (let i = start; i < bytes.length - 2; i++) {
+      if (bytes[i] === PROTOCOL_CONST.EOT) {
+        end = i + FRAME_TERMINATOR_SIZE;
+        break;
+      }
     }
+
+    if (end === -1 || end > bytes.length) break;
+
+    const packetBytes = bytes.slice(start, end);
+    const frames = grid.decode_packet_frame(packetBytes) as DecodedFrame[] | undefined;
+
+    if (frames) {
+      grid.decode_packet_classes(frames);
+      allFrames.push(...frames);
+    }
+
+    offset = end;
   }
 
-  if (end === -1 || end > bytes.length) return null;
-
-  const packetBytes = bytes.slice(start, end);
-  const frames = grid.decode_packet_frame(packetBytes) as DecodedFrame[] | undefined;
-
-  if (!frames) {
-    return null;
-  }
-
-  grid.decode_packet_classes(frames);
-  return frames;
+  return allFrames.length > 0 ? allFrames : null;
 }
 
 /**
