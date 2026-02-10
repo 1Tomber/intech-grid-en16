@@ -3,4 +3,4 @@
  */
 
 export type { DecodedFrame, Packet, SendOptions, ConfigParams, ConfigInstruction } from "./types.js";
-export { buildConfigPacket, parsePacket, parseConfigReport, hasAcknowledge } from "./packet.js";
+export { buildConfigPacket, buildStorePacket, parsePacket, parseConfigReport, hasAcknowledge } from "./packet.js";

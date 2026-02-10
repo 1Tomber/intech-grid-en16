@@ -50,6 +50,29 @@ export function buildConfigPacket(instruction: ConfigInstruction, params: Config
 }
 
 /**
+ * Build a PAGESTORE packet to save configuration to flash.
+ */
+export function buildStorePacket(): Packet {
+  const descriptor = {
+    brc_parameters: { DX: -127, DY: -127 },
+    class_name: "PAGESTORE",
+    class_instr: "EXECUTE",
+    class_parameters: {
+      VERSIONMAJOR: VERSION.MAJOR,
+      VERSIONMINOR: VERSION.MINOR,
+      VERSIONPATCH: VERSION.PATCH,
+      ACTIONSTRING: "",
+    },
+  };
+
+  const result = grid.encode_packet(descriptor);
+  if (!result) {
+    throw new Error("Failed to encode PAGESTORE packet");
+  }
+  return result;
+}
+
+/**
  * Parse binary data into decoded frames.
  */
 export function parsePacket(data: Buffer): DecodedFrame[] | null {

@@ -6,6 +6,7 @@ import { SerialPort } from "serialport";
 import { matchesUsbFilter } from "./lib.js";
 import {
   buildConfigPacket,
+  buildStorePacket,
   parseConfigReport,
   hasAcknowledge,
   type Packet,
@@ -134,6 +135,15 @@ export class GridConnection {
   async fetchScript(pageNumber: number, elementNumber: number, eventType: number): Promise<string> {
     const packet = buildConfigPacket("FETCH", { pageNumber, elementNumber, eventType });
     return this.sendAndWaitReport(packet, { timeout: DEFAULT_TIMEOUT_MS, retries: 1 });
+  }
+
+  /**
+   * store current configuration to flash.
+   */
+  async storeConfig(): Promise<void> {
+    const packet = buildStorePacket();
+    // Flash write takes longer, so use a generous timeout (10s)
+    await this.sendAndWaitAck(packet, "PAGESTORE", { timeout: 10000, retries: 1 });
   }
 }
 

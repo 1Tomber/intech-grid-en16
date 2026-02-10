@@ -19,14 +19,25 @@ Upload a JSON config file to a connected Grid device:
 npx tsx grid-cli.ts upload ../configs/EN16-Control.json
 ```
 
+By default, the configuration is automatically stored to flash memory after upload.
+
 Options:
 
 | Flag                | Description                                      |
 | ------------------- | ------------------------------------------------ |
 | `-p, --port <path>` | Serial port path (auto-detects if not specified) |
 | `--page <n>`        | Upload to specific page only (0-3, default: all) |
+| `--no-store`        | Skip storing to flash memory                     |
 | `-v, --verbose`     | Show detailed progress                           |
 | `-d, --dry-run`     | Validate config without uploading                |
+
+### Store Configuration
+
+Manually store the current configuration to flash memory:
+
+```bash
+npx tsx grid-cli.ts store
+```
 
 ### Download Configuration
 

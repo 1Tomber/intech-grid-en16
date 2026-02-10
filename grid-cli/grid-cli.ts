@@ -204,6 +204,7 @@ program
   .option("--page <n>", "Upload to specific page only (0-3)", (v) => parseInt(v, 10))
   .option("-v, --verbose", "Show detailed progress")
   .option("-d, --dry-run", "Validate config without uploading")
+  .option("--no-store", "Skip storing configuration to flash")
   .action(async (configPath: string, options) => {
     let config: ConfigFile;
     let pages: number[];
@@ -235,6 +236,35 @@ program
     try {
       await uploadConfig(conn, config, pages, options.verbose);
       console.log("Upload complete!");
+
+      if (options.store) {
+        console.log("Storing configuration to flash...");
+        await conn.storeConfig();
+        console.log("Configuration stored.");
+      } else {
+        console.log("Skipping store to flash.");
+      }
+    } finally {
+      conn.close();
+    }
+  });
+
+program
+  .command("store")
+  .description("Store current configuration to flash")
+  .option("-p, --port <path>", "Serial port path (auto-detect if not specified)")
+  .action(async (options) => {
+    console.log("Grid CLI - Store");
+    console.log("================");
+
+    console.log("\nConnecting to Grid device...");
+    const conn = await GridConnection.connect(options.port);
+    console.log("Connected.\n");
+
+    try {
+      console.log("Storing configuration to flash...");
+      await conn.storeConfig();
+      console.log("Configuration stored.");
     } finally {
       conn.close();
     }
