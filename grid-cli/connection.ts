@@ -100,10 +100,11 @@ export class GridConnection {
 
   /**
    * Send a packet and wait for ACKNOWLEDGE response.
+   * When className is provided, only matches ACKs for that specific class.
    */
-  async sendAndWaitAck(packet: Packet, options: Partial<SendOptions> = {}): Promise<void> {
+  async sendAndWaitAck(packet: Packet, className?: string, options: Partial<SendOptions> = {}): Promise<void> {
     const { timeout = 5000, retries = 3 } = options;
-    await this.sendAndWait(packet, (buf) => (hasAcknowledge(buf) ? true : null), { timeout, retries });
+    await this.sendAndWait(packet, (buf) => (hasAcknowledge(buf, className) ? true : null), { timeout, retries });
   }
 
   /**
@@ -124,7 +125,7 @@ export class GridConnection {
     actionString: string
   ): Promise<void> {
     const packet = buildConfigPacket("EXECUTE", { pageNumber, elementNumber, eventType, actionString });
-    await this.sendAndWaitAck(packet);
+    await this.sendAndWaitAck(packet, "CONFIG");
   }
 
   /**

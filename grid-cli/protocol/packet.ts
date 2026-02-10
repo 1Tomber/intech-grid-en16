@@ -103,9 +103,13 @@ export function parseConfigReport(data: Buffer): { actionString: string } | null
 
 /**
  * Check if response contains an ACKNOWLEDGE frame.
+ * When className is provided, only matches ACKs for that specific class.
  */
-export function hasAcknowledge(data: Buffer): boolean {
+export function hasAcknowledge(data: Buffer, className?: string): boolean {
   const frames = parsePacket(data);
   if (!frames) return false;
-  return frames.some((frame) => frame.class_instr === "ACKNOWLEDGE");
+  return frames.some((frame) =>
+    frame.class_instr === "ACKNOWLEDGE" &&
+    (className === undefined || frame.class_name === className)
+  );
 }
